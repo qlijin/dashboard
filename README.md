@@ -1,3 +1,52 @@
+哈喽，分享一个使用docker run或docker-compose部署k8s dashboard的方法，方便大家快速部署k8s dashboard, 而不用必须在k8s集群内部部署dashboard pod， 个人感觉很简洁和直观，尤其便于初学者熟悉和理解k8s dashobard命令的启动参数，也便于灵活修改启动参数。
+
+docker run方式运行:
+
+```
+docker run \
+    -d --restart=always \
+    -v "${HOME}/.kube/config":"/home/user/.kube/config" \
+    -p 8080:9090 \
+    -p 8443:8443 \
+    -e K8S_DASHBOARD_KUBECONFIG=/home/user/.kube/config \
+    -e K8S_OWN_CLUSTER=false  \
+    --name dashboard kubernetesui/dashboard:latest /dashboard --insecure-bind-address=0.0.0.0 --bind-address=0.0.0.0 --kubeconfig=/home/user/.kube/config --enable-insecure-login=false --auto-generate-certificates --enable-skip-login=false
+```
+
+docker-compose方式运行:
+
+```
+version: "3"
+services:
+  dashboard:
+    restart: always
+    image: kubernetesui/dashboard:latest
+    volumes:
+      - ~/.kube/config:/home/user/.kube/config
+    ports:
+      - 8080:9090
+      - 8443:8443
+    environment:
+      - K8S_DASHBOARD_KUBECONFIG=/home/user/.kube/config
+      - K8S_OWN_CLUSTER=false
+    entrypoint:
+      - /dashboard
+      - --insecure-bind-address=0.0.0.0
+      - --bind-address=0.0.0.0
+      - --kubeconfig=/home/user/.kube/config
+      - --enable-insecure-login=false
+      - --auto-generate-certificates
+      - --enable-skip-login=false
+```
+
+
+
+重要: 由于k8s社区dashboard项目的某一个维护者对社区开发人员态度一贯不友好，不经讨论就关闭这个容器相关的合入PR， 我就分享在自己的一亩三分地供大家使用，希望对大家有所帮助~
+
+**Important**:  Since one maintainer(just one) of the k8s community dashboard project has always been unfriendly to developers, the related merged PR about running with docker have been closed without discussion. I share it here for everyone to use. Hope it will be helpful to you~
+
+
+
 # Kubernetes Dashboard
 
 [![Continuous Integration](https://github.com/kubernetes/dashboard/workflows/Continuous%20Integration/badge.svg)](https://github.com/kubernetes/dashboard/actions?query=workflow%3A%22Continuous+Integration%22)
